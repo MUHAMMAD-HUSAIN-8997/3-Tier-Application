@@ -7,7 +7,38 @@ This project bypasses unoptimized development servers to implement an enterprise
 ---
 
 ## 🏗️ Architecture & Component Breakdown
-┌───────────────────────────────┐│      Public Web Browser       │└───────────────┬───────────────┘│ (Port 80)▼┌───────────────────────────────────────────────────────────────────────────┐│ FRONTEND NETWORK (frontend-net)                                           ││                                                                           ││   ┌──────────────────────────────┐     ┌──────────────────────────────┐   ││   │      frontend container      │     │      backend container       │   ││   │       (React + Nginx)        ├────►│       (Node.js/Express)      │   ││   └──────────────────────────────┘     └──────────────┬───────────────┘   │└───────────────────────────────────────────────────────┼───────────────────┘│┌───────────────────────────────────────────────────────┼───────────────────┐│ BACKEND NETWORK (backend-net)                         │                   ││                                                       ▼                   ││                                        ┌──────────────────────────────┐   ││                                        │         db container         │   ││                                        │          (MongoDB)           │   ││                                        └──────────────┬───────────────┘   │└───────────────────────────────────────────────────────┼───────────────────┘▼┌──────────────────────────────┐│  Persistent Volume Storage   ││        (mongo-data)          │└──────────────────────────────┘
+
+```text
+                    ┌───────────────────────────────┐
+                    │      Public Web Browser       │
+                    └───────────────┬───────────────┘
+                                    │ (Port 80)
+                                    ▼
+┌───────────────────────────────────────────────────────────────────────────┐
+│ FRONTEND NETWORK (frontend-net)                                           │
+│                                                                           │
+│   ┌──────────────────────────────┐     ┌──────────────────────────────┐   │
+│   │      frontend container      │     │      backend container       │   │
+│   │       (React + Nginx)        ├────►│       (Node.js/Express)      │   │
+│   └──────────────────────────────┘     └──────────────┬───────────────┘   │
+└───────────────────────────────────────────────────────┼───────────────────┘
+                                                        │
+┌───────────────────────────────────────────────────────┼───────────────────┐
+│ BACKEND NETWORK (backend-net)                         │                   │
+│                                                       ▼                   │
+│                                        ┌──────────────────────────────┐   │
+│                                        │         db container         │   │
+│                                        │          (MongoDB)           │   │
+│                                        └──────────────┬───────────────┘   │
+└───────────────────────────────────────────────────────┼───────────────────┘
+                                                        │
+                                                        ▼
+                                         ┌──────────────────────────────┐
+                                         │  Persistent Volume Storage   │
+                                         │        (mongo-data)          │
+                                         └──────────────────────────────┘
+```
+
 ### 1. Frontend (React + Nginx)
 * **Production Build Strategy:** Utilizes a **Multi-Stage Dockerfile**. Stage 1 installs development dependencies and compiles static assets. Stage 2 discards the bulky Node.js runtime environment and uses a lightweight, secure **Nginx Alpine** base image to serve production assets.
 * **Result:** Image footprint reduced from **~1.2 GB** down to **~45 MB**, significantly shrinking the attack surface and increasing deployment speeds.
